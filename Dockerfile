@@ -55,3 +55,7 @@ WORKDIR "${HOME}"
 # Get rid ot the following message when you open a terminal in jupyterlab:
 # groups: cannot find name for group ID 11320
 RUN touch ${HOME}/.hushlogin
+
+# Configure XFCE4
+# - use single wokspace
+COPY --chown=$NB_UID:$NB_GID configs/xfwm4.xml .config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml 
