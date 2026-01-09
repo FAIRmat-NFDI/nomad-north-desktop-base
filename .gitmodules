@@ -1,0 +1,3 @@
+[submodule "jupyter-remote-desktop-proxy"]
+	path = jupyter-remote-desktop-proxy
+	url = https://github.com/jupyterhub/jupyter-remote-desktop-proxy.git
