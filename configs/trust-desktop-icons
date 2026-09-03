@@ -1,0 +1,6 @@
+#!/bin/bash
+# Pre-mark every Desktop shortcut as trusted, so double-clicking one doesn't
+# trigger xfce's "untrusted launcher" prompt.
+for f in /home/jovyan/Desktop/*.desktop; do
+  gio set -t string "$f" metadata::xfce-exe-checksum "$(sha256sum "$f" | awk '{print $1}')"
+done
