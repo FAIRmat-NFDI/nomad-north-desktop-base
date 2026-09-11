@@ -44,6 +44,12 @@ RUN wget -q -O- https://packagecloud.io/dcommander/turbovnc/gpgkey | \
 # --enable-unsafe-swiftshader make WebGL fall back to software rendering
 # instead of failing outright with no real GPU in the container.
 #
+# --no-first-run/--disable-fre/--no-default-browser-check suppress the
+# "Welcome to Google Chrome" first-run dialog (default-browser + send-usage-
+# statistics checkboxes) - the equivalent Master Preferences file approach is
+# documented as unreliable for this specific dialog, so these flags are used
+# instead of/alongside the policy file below.
+#
 # Patched into google-chrome-stable's own wrapper script (the last line of
 # /opt/google/chrome/google-chrome, which /usr/bin/google-chrome-stable
 # symlinks to), not just its .desktop file's Exec line - google-chrome-stable
@@ -56,8 +62,16 @@ RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.d
  && apt-get -y -qq install ./google-chrome-stable_current_amd64.deb \
  && rm google-chrome-stable_current_amd64.deb \
  && apt-get clean && rm -rf /var/lib/apt/lists/* \
- && sed -i 's|exec -a "\$0" "\$HERE/chrome" "\$@"|exec -a "$0" "$HERE/chrome" --no-sandbox --disable-dev-shm-usage --password-store=basic --disable-gpu-sandbox --use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader "$@"|' \
+ && sed -i 's|exec -a "\$0" "\$HERE/chrome" "\$@"|exec -a "$0" "$HERE/chrome" --no-sandbox --disable-dev-shm-usage --password-store=basic --disable-gpu-sandbox --use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader --no-first-run --disable-fre --no-default-browser-check "$@"|' \
         /opt/google/chrome/google-chrome
+
+# Disable Chrome's sign-in prompt, "set as default browser" nag, and usage
+# statistics reporting via its enterprise managed-policy mechanism (more
+# robust than CLI flags for these settings, which don't cover every code path
+# that can trigger them). Deliberately does NOT touch the Terms of Service
+# dialog - that one's worth keeping for legal reasons.
+RUN mkdir -p /etc/opt/chrome/policies/managed
+COPY configs/chrome-policies.json /etc/opt/chrome/policies/managed/policies.json
 
 USER $NB_USER
 
